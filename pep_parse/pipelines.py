@@ -3,9 +3,7 @@ import datetime as dt
 
 from pep_parse.settings import BASE_DIR
 
-time_format = dt.datetime.now().strftime('%m-%d-%Y_%H-%M-%S')
-
-QTY_DIC = {
+PEP_STATUSES_COUNT_DIC = {
     'Accepted': 0,
     'Active': 0,
     'Deferred': 0,
@@ -24,9 +22,13 @@ class PepParsePipeline:
 
     def process_item(self, item, spider):
         extraction = item['status']
-        count = QTY_DIC[extraction]
-        count += 1
-        QTY_DIC[extraction] = count
+        try:
+            count = PEP_STATUSES_COUNT_DIC[extraction]
+            count += 1
+            PEP_STATUSES_COUNT_DIC[extraction] = count
+        except KeyError:
+            print(f'В словарь {PEP_STATUSES_COUNT_DIC} поступил'
+                  f'непредусмотренный ключ')
 
         return item
 
@@ -34,13 +36,12 @@ class PepParsePipeline:
         pass
 
     def close_spider(self, spider):
-        results.extend(QTY_DIC.items())
-        total = 0
-        for value in QTY_DIC.values():
-            total += int(value)
+        results.extend(PEP_STATUSES_COUNT_DIC.items())
+        total = sum(PEP_STATUSES_COUNT_DIC.values())
         results.append(('Total', total))
 
-        with open(f'{BASE_DIR}/results/status_summary_{time_format}.csv',
+        with open(f'{BASE_DIR}/results/status_summary_'
+                  f'{dt.datetime.now().strftime("%m-%d-%Y_%H-%M-%S")}.csv',
                   'w', encoding='utf-8') as f:
             writer = csv.writer(f, dialect='unix')
             f.write('Статус, Количество\n')
