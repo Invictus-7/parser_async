@@ -1,9 +1,10 @@
 import csv
 import datetime as dt
+import logging
 
 from pep_parse.settings import BASE_DIR
 
-PEP_STATUSES_COUNT_DIC = {
+PEP_STATUSES_COUNT = {
     'Accepted': 0,
     'Active': 0,
     'Deferred': 0,
@@ -23,12 +24,12 @@ class PepParsePipeline:
     def process_item(self, item, spider):
         extraction = item['status']
         try:
-            count = PEP_STATUSES_COUNT_DIC[extraction]
+            count = PEP_STATUSES_COUNT[extraction]
             count += 1
-            PEP_STATUSES_COUNT_DIC[extraction] = count
+            PEP_STATUSES_COUNT[extraction] = count
         except KeyError:
-            print(f'В словарь {PEP_STATUSES_COUNT_DIC} поступил'
-                  f'непредусмотренный ключ')
+            logging.error(f'В словарь {PEP_STATUSES_COUNT} поступил'
+                          f'непредусмотренный ключ')
 
         return item
 
@@ -36,8 +37,8 @@ class PepParsePipeline:
         pass
 
     def close_spider(self, spider):
-        results.extend(PEP_STATUSES_COUNT_DIC.items())
-        total = sum(PEP_STATUSES_COUNT_DIC.values())
+        results.extend(PEP_STATUSES_COUNT.items())
+        total = sum(PEP_STATUSES_COUNT.values())
         results.append(('Total', total))
 
         with open(f'{BASE_DIR}/results/status_summary_'
