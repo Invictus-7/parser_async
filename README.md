@@ -30,7 +30,7 @@
 
 1. Клонируйте проект на свой компьютер и перейдите в его корневую папку:
 ```
-https://github.com/Invictus-7/scrapy_parser_pep
+https://github.com/Invictus-7/parser_async
 
 ```
 2. Создайте и активируйте виртуальное окружение:
